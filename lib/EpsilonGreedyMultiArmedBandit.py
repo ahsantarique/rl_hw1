@@ -25,6 +25,7 @@ class EpsilonGreedyStruct:
             # explore = np.random.binomial(1, np.min([1, self.d/self.time]))
         else:
             explore = np.random.binomial(1, self.epsilon)
+            
         if explore == 1:
             # print("EpsilonGreedy: explore")
             articlePicked = np.random.choice(pool_articles)

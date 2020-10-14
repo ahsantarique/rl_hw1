@@ -13,6 +13,7 @@ from Users import UserManager
 
 from lib.EpsilonGreedyLinearBandit import EpsilonGreedyLinearBandit
 from lib.EpsilonGreedyMultiArmedBandit import EpsilonGreedyMultiArmedBandit
+from lib.UpperConfidenceBound import UpperConfidenceBound
 
 class simulateOnlineData(object):
 	def __init__(self, context_dimension, testing_iterations, plot, articles,
@@ -189,7 +190,7 @@ if __name__ == '__main__':
 	else:
 		actionset = "basis_vector"  # "basis_vector" or "random"
 
-	testing_iterations = 200000
+	testing_iterations = 1500
 	NoiseScale = 0.1  # standard deviation of Gaussian noise
 	n_articles = 25
 	n_users = 10
@@ -219,6 +220,9 @@ if __name__ == '__main__':
 
 	algorithms['EpsilonGreedyLinearBandit'] = EpsilonGreedyLinearBandit(dimension=context_dimension, lambda_=0.1, epsilon=None)
 	algorithms['EpsilonGreedyMultiArmedBandit'] = EpsilonGreedyMultiArmedBandit(num_arm=n_articles, epsilon=None)
+
+	##
+	algorithms['UppperConfidenceBound'] = UpperConfidenceBound(num_arm=n_articles, c=0.01)
 
 	## Run Simulation ##
 	print("Starting for ", simExperiment.simulation_signature)
