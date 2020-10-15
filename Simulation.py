@@ -14,6 +14,11 @@ from Users import UserManager
 from lib.EpsilonGreedyLinearBandit import EpsilonGreedyLinearBandit
 from lib.EpsilonGreedyMultiArmedBandit import EpsilonGreedyMultiArmedBandit
 from lib.UpperConfidenceBound import UpperConfidenceBound
+from lib.ThompsonSampling import ThompsonSampling
+from lib.PHE import PHE
+
+
+
 
 class simulateOnlineData(object):
 	def __init__(self, context_dimension, testing_iterations, plot, articles,
@@ -190,7 +195,7 @@ if __name__ == '__main__':
 	else:
 		actionset = "basis_vector"  # "basis_vector" or "random"
 
-	testing_iterations = 1500
+	testing_iterations = 200
 	NoiseScale = 0.1  # standard deviation of Gaussian noise
 	n_articles = 25
 	n_users = 10
@@ -218,11 +223,18 @@ if __name__ == '__main__':
 	## Initiate Bandit Algorithms ##
 	algorithms = {}
 
-	algorithms['EpsilonGreedyLinearBandit'] = EpsilonGreedyLinearBandit(dimension=context_dimension, lambda_=0.1, epsilon=None)
 	algorithms['EpsilonGreedyMultiArmedBandit'] = EpsilonGreedyMultiArmedBandit(num_arm=n_articles, epsilon=None)
 
 	##
 	algorithms['UppperConfidenceBound'] = UpperConfidenceBound(num_arm=n_articles, c=0.01)
+	algorithms['ThompsonSampling'] = ThompsonSampling(num_arm=n_articles, c=0.001)
+	algorithms['PHE'] = PHE(num_arm=n_articles, c=0, a = 0.001, p = 0.5) ## a is integer
+
+
+
+
+	algorithms['EpsilonGreedyLinearBandit'] = EpsilonGreedyLinearBandit(dimension=context_dimension, lambda_=0.1, epsilon=None)
+
 
 	## Run Simulation ##
 	print("Starting for ", simExperiment.simulation_signature)

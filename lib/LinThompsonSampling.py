@@ -1,30 +1,47 @@
 import numpy as np
+from scipy.stats import multivariate_normal
+
 
 class UCBStruct:
-    def __init__(self, num_arm, c):
+    def __init__(self, num_arm, lambda_, var):
         self.d = num_arm
+        self.A = lambda_ * np.identity(n=self.d)
+        self.lambda_ = lambda_
 
-        self.UserArmMean = np.ones(self.d)
-        self.UserArmTrials = np.ones(self.d)
+        self.var = var
 
-        self.B = np.zeros(self.d) 
 
-        self.c = c ## hyperparameter
+        self.b = np.zeros(self.d)
+
+        self.AInv = np.linalg.inv(self.A)
+        self.UserTheta = np.zeros(self.d)
+        # self.UserTheta = np.dot(self.AInv, self.b)
+
+        # self.UserArmMean = np.zeros(self.d)
+        # self.UserArmTrials = np.zeros(self.d)
 
         self.time = 0
 
 
     def updateParameters(self, articlePicked_id, click):
-        self.UserArmMean[articlePicked_id] = (self.UserArmMean[articlePicked_id]*self.UserArmTrials[articlePicked_id] + click) / (self.UserArmTrials[articlePicked_id]+1)
-        self.UserArmTrials[articlePicked_id] += 1
 
+        self.A += np.outer(articlePicked_FeatureVector, articlePicked_FeatureVector)
+        self.b += articlePicked_FeatureVector * click
+
+        self.AInv = np.linalg.inv(self.A)
+        self.UserTheta = np.dot(self.AInv, self.b)
         self.time += 1 ## this comes before the next line so that we never encounter log 0
 
-        self.B[articlePicked_id] = np.sqrt(2*np.log(self.time) / self.UserArmTrials[articlePicked_id])
+
+        # update a, b here
+
+        ###################################
 
 
     def getTheta(self):
-        return self.UserArmMean
+        return self.UserTheta
+
+
 
     def decide(self, pool_articles):
         if (self.time < self.d):
@@ -38,12 +55,11 @@ class UCBStruct:
         articlePicked = None
 
         for article in pool_articles:
-            article_pta = self.UserArmMean[article.id] + self.c*self.B[article.id]
+            article_pta = multivariate_normal.rvs(np.matmul(self.AInv, self.b), self.AInv)
             # pick article with highest Prob
             if maxPTA < article_pta:
                 articlePicked = article
                 maxPTA = article_pta
-
         return articlePicked
 
 

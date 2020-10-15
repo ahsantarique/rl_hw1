@@ -1,6 +1,6 @@
 import numpy as np
 
-class UCBStruct:
+class TSStruct:
     def __init__(self, num_arm, c):
         self.d = num_arm
 
@@ -38,7 +38,7 @@ class UCBStruct:
         articlePicked = None
 
         for article in pool_articles:
-            article_pta = self.UserArmMean[article.id] + self.c*self.B[article.id]
+            article_pta = np.random.normal(self.UserArmMean[article.id], self.c)
             # pick article with highest Prob
             if maxPTA < article_pta:
                 articlePicked = article
@@ -48,7 +48,7 @@ class UCBStruct:
 
 
 
-class UpperConfidenceBound:
+class ThompsonSampling:
     def __init__(self, num_arm, c):
         self.users = {}
         self.num_arm = num_arm
@@ -57,7 +57,7 @@ class UpperConfidenceBound:
 
     def decide(self, pool_articles, userID):
         if userID not in self.users:
-            self.users[userID] = UCBStruct(self.num_arm, c= self.c)
+            self.users[userID] = TSStruct(self.num_arm, c= self.c)
 
         return self.users[userID].decide(pool_articles)
 

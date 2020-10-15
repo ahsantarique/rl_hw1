@@ -1,7 +1,8 @@
 import numpy as np
+from scipy.stats import bernoulli
 
-class UCBStruct:
-    def __init__(self, num_arm, c):
+class PHEStruct:
+    def __init__(self, num_arm, c, a, p):
         self.d = num_arm
 
         self.UserArmMean = np.ones(self.d)
@@ -9,6 +10,8 @@ class UCBStruct:
 
         self.B = np.zeros(self.d) 
 
+        self.a = int(a) ## hyperparam
+        self.p = p
         self.c = c ## hyperparameter
 
         self.time = 0
@@ -16,7 +19,9 @@ class UCBStruct:
 
     def updateParameters(self, articlePicked_id, click):
         self.UserArmMean[articlePicked_id] = (self.UserArmMean[articlePicked_id]*self.UserArmTrials[articlePicked_id] + click) / (self.UserArmTrials[articlePicked_id]+1)
+        
         self.UserArmTrials[articlePicked_id] += 1
+
 
         self.time += 1 ## this comes before the next line so that we never encounter log 0
 
@@ -38,7 +43,10 @@ class UCBStruct:
         articlePicked = None
 
         for article in pool_articles:
-            article_pta = self.UserArmMean[article.id] + self.c*self.B[article.id]
+
+            noise = np.sum([bernoulli.rvs(self.p) for i in range(int(self.a*self.UserArmTrials[article.id]))])
+
+            article_pta = ((self.UserArmMean[article.id] * self.UserArmTrials[article.id] + noise) / ((self.a+1) * self.UserArmTrials[article.id])) + self.c*self.B[article.id]
             # pick article with highest Prob
             if maxPTA < article_pta:
                 articlePicked = article
@@ -48,16 +56,18 @@ class UCBStruct:
 
 
 
-class UpperConfidenceBound:
-    def __init__(self, num_arm, c):
+class PHE:
+    def __init__(self, num_arm,  c, a, p=0.5):
         self.users = {}
         self.num_arm = num_arm
-        self.c = c
+        self.a = int(a) ## hyperparam
+        self.p = p ## hyperparam
+        self.c = c ## hyperparameter
         self.CanEstimateUserPreference = False
 
     def decide(self, pool_articles, userID):
         if userID not in self.users:
-            self.users[userID] = UCBStruct(self.num_arm, c= self.c)
+            self.users[userID] = PHEStruct(self.num_arm, c= self.c, a = self.a, p=self.p)
 
         return self.users[userID].decide(pool_articles)
 
