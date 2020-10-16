@@ -1,12 +1,16 @@
 import numpy as np
 
-class EpsilonGreedyStruct:
-    def __init__(self, featureDimension, lambda_, epsilon):
+class LinUCBStruct:
+    def __init__(self, featureDimension, lambda_, c):
         self.d = featureDimension
         self.A = lambda_ * np.identity(n=self.d)
         self.lambda_ = lambda_
-        self.epsilon = epsilon
+
         self.b = np.zeros(self.d)
+
+
+        self.c = c
+
         self.AInv = np.linalg.inv(self.A)
         self.UserTheta = np.zeros(self.d)
         self.time = 0
@@ -17,6 +21,9 @@ class EpsilonGreedyStruct:
         self.AInv = np.linalg.inv(self.A)
         self.UserTheta = np.dot(self.AInv, self.b)
         self.time += 1
+       
+
+
 
     def getTheta(self):
         return self.UserTheta
@@ -35,8 +42,11 @@ class EpsilonGreedyStruct:
         maxPTA = float('-inf')
         articlePicked = None
 
+
         for article in pool_articles:
-            article_pta = np.dot(self.UserTheta, article.featureVector)
+            
+            confidence = np.matmul( (np.matmul(article.featureVector.T, self.AInv) ), article.featureVector)
+            article_pta = np.dot(self.UserTheta, article.featureVector) + self.c*confidence
             # pick article with highest Prob
             if maxPTA < article_pta:
                 articlePicked = article
@@ -44,17 +54,18 @@ class EpsilonGreedyStruct:
 
         return articlePicked
 
-class EpsilonGreedyLinearBandit:
-    def __init__(self, dimension, lambda_, epsilon):
+class LinUCB:
+    def __init__(self, dimension, lambda_, c):
         self.users = {}
         self.dimension = dimension
         self.lambda_ = lambda_
-        self.epsilon = epsilon
+        self.c = c
+
         self.CanEstimateUserPreference = True
 
     def decide(self, pool_articles, userID):
         if userID not in self.users:
-            self.users[userID] = EpsilonGreedyStruct(self.dimension, self.lambda_, self.epsilon)
+            self.users[userID] = LinUCBStruct(self.dimension, self.lambda_, self.c)
 
         return self.users[userID].decide(pool_articles)
 

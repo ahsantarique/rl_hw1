@@ -18,6 +18,9 @@ from lib.ThompsonSampling import ThompsonSampling
 from lib.PHE import PHE
 
 
+from lib.LinUCB import LinUCB
+
+
 
 
 class simulateOnlineData(object):
@@ -223,17 +226,18 @@ if __name__ == '__main__':
 	## Initiate Bandit Algorithms ##
 	algorithms = {}
 
-	algorithms['EpsilonGreedyMultiArmedBandit'] = EpsilonGreedyMultiArmedBandit(num_arm=n_articles, epsilon=None)
+	# algorithms['EpsilonGreedyMultiArmedBandit'] = EpsilonGreedyMultiArmedBandit(num_arm=n_articles, epsilon=None)
 
-	##
-	algorithms['UppperConfidenceBound'] = UpperConfidenceBound(num_arm=n_articles, c=0.01)
-	algorithms['ThompsonSampling'] = ThompsonSampling(num_arm=n_articles, c=0.001)
-	algorithms['PHE'] = PHE(num_arm=n_articles, c=0, a = 0.001, p = 0.5) ## a is integer
+	# ##
+	# algorithms['UppperConfidenceBound'] = UpperConfidenceBound(num_arm=n_articles, c=0.01)
+	# algorithms['ThompsonSampling'] = ThompsonSampling(num_arm=n_articles, c=0.001)
+	# algorithms['PHE'] = PHE(num_arm=n_articles, c=0, a = 0.001, p = 0.5) ## a is integer
 
 
 
 
 	algorithms['EpsilonGreedyLinearBandit'] = EpsilonGreedyLinearBandit(dimension=context_dimension, lambda_=0.1, epsilon=None)
+	algorithms['LinUCB'] = LinUCB(dimension=context_dimension, lambda_=0.1, c = 0.1)
 
 
 	## Run Simulation ##
