@@ -20,6 +20,7 @@ from lib.PHE import PHE
 
 from lib.LinUCB import LinUCB
 from lib.LinThompsonSampling import LinTS
+from lib.LinPHE import LinPHE
 
 
 
@@ -199,7 +200,7 @@ if __name__ == '__main__':
 	else:
 		actionset = "basis_vector"  # "basis_vector" or "random"
 
-	testing_iterations = 200
+	testing_iterations = 500
 	NoiseScale = 0.1  # standard deviation of Gaussian noise
 	n_articles = 25
 	n_users = 10
@@ -229,17 +230,19 @@ if __name__ == '__main__':
 
 	# algorithms['EpsilonGreedyMultiArmedBandit'] = EpsilonGreedyMultiArmedBandit(num_arm=n_articles, epsilon=None)
 
-	# ##
+	# ## my implementation
 	# algorithms['UppperConfidenceBound'] = UpperConfidenceBound(num_arm=n_articles, c=0.01)
 	# algorithms['ThompsonSampling'] = ThompsonSampling(num_arm=n_articles, c=0.001)
-	# algorithms['PHE'] = PHE(num_arm=n_articles, c=0, a = 0.001, p = 0.5) ## a is integer
+	# algorithms['PHE'] = PHE(num_arm=n_articles, c=0, a = 0.001, p = 0.5) 
 
 
 
 
 	algorithms['EpsilonGreedyLinearBandit'] = EpsilonGreedyLinearBandit(dimension=context_dimension, lambda_=0.1, epsilon=None)
+	##
 	algorithms['LinUCB'] = LinUCB(dimension=context_dimension, lambda_=0.1, c = 0.1)
-	algorithms['LinTS'] = LinTS(dimension=context_dimension, lambda_=0.1, c = 0.001)
+	algorithms['LinTS'] = LinTS(dimension=context_dimension, lambda_=0.01, c = 0.00001)
+	algorithms['LinPHE'] = LinPHE(dimension=context_dimension, lambda_=0.1, c=0, a = 0.01, p = 0.5)
 
 
 	## Run Simulation ##
