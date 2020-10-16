@@ -1,47 +1,35 @@
 import numpy as np
-from scipy.stats import multivariate_normal
 
-
-class UCBStruct:
-    def __init__(self, num_arm, lambda_, var):
-        self.d = num_arm
+class LinTSStruct:
+    def __init__(self, featureDimension, lambda_, c):
+        self.d = featureDimension
         self.A = lambda_ * np.identity(n=self.d)
         self.lambda_ = lambda_
 
-        self.var = var
-
-
         self.b = np.zeros(self.d)
+
+
+        self.c = c
 
         self.AInv = np.linalg.inv(self.A)
         self.UserTheta = np.zeros(self.d)
-        # self.UserTheta = np.dot(self.AInv, self.b)
-
-        # self.UserArmMean = np.zeros(self.d)
-        # self.UserArmTrials = np.zeros(self.d)
-
         self.time = 0
 
-
-    def updateParameters(self, articlePicked_id, click):
-
+    def updateParameters(self, articlePicked_FeatureVector, click):
         self.A += np.outer(articlePicked_FeatureVector, articlePicked_FeatureVector)
         self.b += articlePicked_FeatureVector * click
-
         self.AInv = np.linalg.inv(self.A)
         self.UserTheta = np.dot(self.AInv, self.b)
-        self.time += 1 ## this comes before the next line so that we never encounter log 0
+        self.time += 1
+       
 
-
-        # update a, b here
-
-        ###################################
 
 
     def getTheta(self):
         return self.UserTheta
 
-
+    def getA(self):
+        return self.A
 
     def decide(self, pool_articles):
         if (self.time < self.d):
@@ -54,33 +42,37 @@ class UCBStruct:
         maxPTA = float('-inf')
         articlePicked = None
 
+
         for article in pool_articles:
-            article_pta = multivariate_normal.rvs(np.matmul(self.AInv, self.b), self.AInv)
+            
+            # confidence = np.matmul( (np.matmul(article.featureVector.T, self.AInv) ), article.featureVector)
+            article_pta = np.random.normal(np.dot(self.UserTheta, article.featureVector), self.c)
             # pick article with highest Prob
             if maxPTA < article_pta:
                 articlePicked = article
                 maxPTA = article_pta
+
         return articlePicked
 
-
-
-class UpperConfidenceBound:
-    def __init__(self, num_arm, c):
+class LinTS:
+    def __init__(self, dimension, lambda_, c):
         self.users = {}
-        self.num_arm = num_arm
+        self.dimension = dimension
+        self.lambda_ = lambda_
         self.c = c
-        self.CanEstimateUserPreference = False
+
+        self.CanEstimateUserPreference = True
 
     def decide(self, pool_articles, userID):
         if userID not in self.users:
-            self.users[userID] = UCBStruct(self.num_arm, c= self.c)
+            self.users[userID] = LinTSStruct(self.dimension, self.lambda_, self.c)
 
         return self.users[userID].decide(pool_articles)
 
     def updateParameters(self, articlePicked, click, userID):
-        self.users[userID].updateParameters(articlePicked.id, click)
+        self.users[userID].updateParameters(articlePicked.featureVector[:self.dimension], click)
 
     def getTheta(self, userID):
-        return self.users[userID].UserArmMean
+        return self.users[userID].UserTheta
 
 

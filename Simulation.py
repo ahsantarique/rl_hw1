@@ -19,6 +19,7 @@ from lib.PHE import PHE
 
 
 from lib.LinUCB import LinUCB
+from lib.LinThompsonSampling import LinTS
 
 
 
@@ -238,6 +239,7 @@ if __name__ == '__main__':
 
 	algorithms['EpsilonGreedyLinearBandit'] = EpsilonGreedyLinearBandit(dimension=context_dimension, lambda_=0.1, epsilon=None)
 	algorithms['LinUCB'] = LinUCB(dimension=context_dimension, lambda_=0.1, c = 0.1)
+	algorithms['LinTS'] = LinTS(dimension=context_dimension, lambda_=0.1, c = 0.001)
 
 
 	## Run Simulation ##
